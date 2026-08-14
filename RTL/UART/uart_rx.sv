@@ -95,7 +95,7 @@ always_comb begin
     state_nxt            = state_crnt;
     m_axis_tvalid_comb   = m_axis_tvalid_reg;
     m_axis_tdata_comb    = m_axis_tdata_reg;
-    m_axis_tlast_comb    = 1'b0;
+    m_axis_tlast_comb    = m_axis_tlast_reg;
     uart_busy_comb       = uart_busy_reg;
     frame_count_comb     = frame_count_reg;
     start_bit_comb       = start_bit_reg;
@@ -105,7 +105,9 @@ always_comb begin
     unique case (state_crnt)
         IDLE : begin
             m_axis_tdata_comb  = m_axis_tdata_reg;
-            m_axis_tvalid_comb = 1'b0;
+            if (m_axis_tvalid_reg && m_axis_tready) begin
+                m_axis_tvalid_comb = 1'b0;
+            end
             uart_busy_comb     = 1'b0;
             frame_count_comb   = DWIDTH + 'd3;
             if (m_axis_tready) begin
@@ -142,7 +144,7 @@ end
 
 // Output assignment
 assign m_axis_tvalid   = m_axis_tvalid_reg;
-assign m_axis_tdata    = (m_axis_tvalid_reg && m_axis_tready)? m_axis_tdata_reg : 'h0;
+assign m_axis_tdata    = m_axis_tdata_reg;
 assign m_axis_tlast    = (m_axis_tvalid_reg)? m_axis_tlast_reg : 1'b0;
 assign uart_busy       = uart_busy_reg;
 assign uart_parity_err = uart_parity_err_reg;
