@@ -83,7 +83,7 @@ always_ff @(posedge uart_clk, negedge uart_rst_n) begin : rx_block
         uart_busy_reg       <= uart_busy_comb;
         frame_count_reg     <= frame_count_comb;
         start_bit_reg       <= start_bit_comb;
-        stop_bit_reg        <= start_bit_comb;
+        stop_bit_reg        <= stop_bit_comb;
         parity_bit_reg      <= parity_bit_comb;
         uart_parity_err_reg <= uart_parity_err_comb;
         state_crnt          <= state_nxt;
@@ -136,7 +136,7 @@ always_comb begin
                 end
             end
             else begin // --Data Frame
-                {parity_bit_comb,m_axis_tlast_comb,m_axis_tdata_comb,start_bit_comb} = {uart_rxd,parity_bit_reg,m_axis_tlast_reg,m_axis_tdata_reg[DWIDTH-1:1],start_bit_reg};
+                {parity_bit_comb,m_axis_tlast_comb,m_axis_tdata_comb,start_bit_comb} = {uart_rxd,parity_bit_reg,m_axis_tlast_reg,m_axis_tdata_reg};
             end
         end
         endcase
@@ -148,6 +148,6 @@ assign m_axis_tdata    = m_axis_tdata_reg;
 assign m_axis_tlast    = (m_axis_tvalid_reg)? m_axis_tlast_reg : 1'b0;
 assign uart_busy       = uart_busy_reg;
 assign uart_parity_err = uart_parity_err_reg;
-assign uart_frame_err  = (!start_bit_reg && start_bit_reg);
+assign uart_frame_err  = start_bit_reg || !stop_bit_reg;
 
 endmodule
